@@ -1,2 +1,563 @@
-<h1>Site Inspect</h1>
-<p>Neutral public inspection app. Full mobile interface is being prepared.</p>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0d5a86">
+  <title>Site Inspect</title>
+
+  <style>
+    :root {
+      --bg:#eef5fb;
+      --surface:#fff;
+      --surface2:#f5f9fc;
+      --border:#c8d7e5;
+      --accent:#0d5a86;
+      --text:#143047;
+      --muted:#557086;
+      --danger:#b73535;
+    }
+
+    * { box-sizing:border-box; }
+
+    body {
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Arial, sans-serif;
+      font-size:15px;
+    }
+
+    header {
+      position:sticky;
+      top:0;
+      background:#fff;
+      border-bottom:1px solid var(--border);
+      padding:14px;
+      z-index:5;
+    }
+
+    .brand {
+      font-weight:700;
+      color:var(--accent);
+      font-size:20px;
+    }
+
+    .small {
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    main {
+      max-width:850px;
+      margin:0 auto;
+      padding:12px 12px 92px;
+    }
+
+    .card {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:16px;
+      margin:12px 0;
+      box-shadow:0 10px 24px rgba(20,48,71,.08);
+      overflow:hidden;
+    }
+
+    .head {
+      padding:14px;
+      border-bottom:1px solid var(--border);
+    }
+
+    h2 {
+      margin:0;
+      color:var(--accent);
+      font-size:18px;
+    }
+
+    .body {
+      padding:14px;
+      display:grid;
+      gap:12px;
+    }
+
+    .grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    label {
+      display:grid;
+      gap:6px;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    input, select, textarea {
+      width:100%;
+      font:inherit;
+      padding:11px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:#fff;
+      color:var(--text);
+    }
+
+    textarea {
+      min-height:90px;
+      resize:vertical;
+    }
+
+    .btn {
+      border:0;
+      border-radius:12px;
+      padding:12px 14px;
+      font-weight:700;
+      background:var(--accent);
+      color:#fff;
+      min-height:46px;
+      width:100%;
+      cursor:pointer;
+    }
+
+    .btn2 {
+      background:var(--surface2);
+      color:var(--accent);
+      border:1px solid var(--border);
+    }
+
+    .danger {
+      background:#fff1f1;
+      color:var(--danger);
+      border:1px solid #e9b7b7;
+    }
+
+    .fileBtn {
+      position:relative;
+      overflow:hidden;
+      text-align:center;
+    }
+
+    .fileBtn input {
+      position:absolute;
+      inset:0;
+      opacity:0;
+      cursor:pointer;
+    }
+
+    .photos {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+    }
+
+    .slot {
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:var(--surface2);
+      padding:10px;
+      display:grid;
+      gap:8px;
+    }
+
+    .preview {
+      height:150px;
+      border:1px dashed var(--border);
+      border-radius:10px;
+      background:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      color:var(--muted);
+      font-size:12px;
+      text-align:center;
+    }
+
+    .preview img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .status {
+      font-size:12px;
+      color:var(--muted);
+      background:var(--surface2);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:10px;
+    }
+
+    .record {
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:var(--surface2);
+      padding:12px;
+      margin-bottom:10px;
+    }
+
+    .record-title {
+      font-weight:700;
+      color:var(--accent);
+    }
+
+    .thumb {
+      width:74px;
+      height:74px;
+      object-fit:cover;
+      border-radius:10px;
+      border:1px solid var(--border);
+      margin-right:6px;
+      margin-top:8px;
+    }
+
+    .bar {
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      background:#fff;
+      border-top:1px solid var(--border);
+      padding:10px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      z-index:10;
+    }
+
+    @media(max-width:700px) {
+      .grid, .photos {
+        grid-template-columns:1fr;
+      }
+
+      .preview {
+        height:220px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="brand">Site Inspect</div>
+    <div class="small">Neutral mobile inspection and photo workflow</div>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="head">
+        <h2>Inspection</h2>
+        <div class="small">Save simple local inspection records with staged photos.</div>
+      </div>
+
+      <div class="body">
+        <div class="grid">
+          <label>
+            Project ID
+            <input id="projectId" placeholder="PRJ-001">
+          </label>
+
+          <label>
+            Inspector
+            <input id="inspector" placeholder="Inspector">
+          </label>
+        </div>
+
+        <label>
+          Project Name
+          <input id="projectName" placeholder="Project / site">
+        </label>
+
+        <div class="grid">
+          <label>
+            Date
+            <input id="date" type="date">
+          </label>
+
+          <label>
+            Area / Wall ID
+            <input id="area" placeholder="Wall 1 / CH41">
+          </label>
+        </div>
+
+        <label>
+          Inspection Type
+          <select id="type">
+            <option>Retaining wall inspection</option>
+            <option>Footing inspection</option>
+            <option>Temporary stability assessment</option>
+            <option>General site inspection</option>
+          </select>
+        </label>
+
+        <label>
+          Notes
+          <textarea id="notes" placeholder="Record inspection observations"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="head">
+        <h2>Photos</h2>
+        <div class="small">A selected photo must appear here before it is staged.</div>
+      </div>
+
+      <div class="body">
+        <label class="btn btn2 fileBtn">
+          Choose photos / camera
+          <input id="photoInput" type="file" accept="image/*" multiple>
+        </label>
+
+        <div id="photoGrid" class="photos"></div>
+        <div id="photoStatus" class="status">0 photos staged.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="head">
+        <h2>Saved Records</h2>
+      </div>
+
+      <div class="body">
+        <div id="records"></div>
+        <button class="btn danger" onclick="clearRecords()">Clear records</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="bar">
+    <button class="btn" onclick="saveRecord()">Save Inspection</button>
+    <button class="btn btn2" onclick="exportData()">Export JSON</button>
+  </div>
+
+  <script>
+    const MAX_PHOTOS = 3;
+    let staged = [];
+
+    const $ = id => document.getElementById(id);
+
+    function today() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"']/g, ch => ({
+        '&':'&amp;',
+        '<':'&lt;',
+        '>':'&gt;',
+        '"':'&quot;',
+        "'":'&#39;'
+      }[ch]));
+    }
+
+    function defaultCaption(index) {
+      const project = $('projectId').value || 'Project';
+      const area = $('area').value || 'Site';
+      return `${project} - ${area} - Photo ${index + 1}`;
+    }
+
+    function drawPhotos() {
+      if (!staged.length) {
+        $('photoGrid').innerHTML = '<div class="status">No photos staged yet.</div>';
+      } else {
+        $('photoGrid').innerHTML = staged.map((photo, index) => `
+          <div class="slot">
+            <div class="preview">
+              <img src="${photo.data}" alt="Photo ${index + 1}">
+            </div>
+
+            <label>
+              Caption
+              <input value="${escapeHtml(photo.caption)}" oninput="staged[${index}].caption = this.value">
+            </label>
+
+            <button class="btn danger" onclick="removePhoto(${index})">Remove</button>
+          </div>
+        `).join('');
+      }
+
+      $('photoStatus').textContent =
+        `${staged.length}/${MAX_PHOTOS} photo${staged.length === 1 ? '' : 's'} staged.`;
+    }
+
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(reader.error || new Error('Could not read file'));
+
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function loadImage(dataUrl) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error('Could not load image'));
+
+        image.src = dataUrl;
+      });
+    }
+
+    async function compressImage(dataUrl) {
+      const image = await loadImage(dataUrl);
+
+      const maxDimension = 1000;
+      const width = image.naturalWidth || image.width;
+      const height = image.naturalHeight || image.height;
+      const scale = Math.min(1, maxDimension / Math.max(width, height));
+
+      if (scale >= 1 && /^data:image\/jpe?g/i.test(dataUrl)) {
+        return dataUrl;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(width * scale));
+      canvas.height = Math.max(1, Math.round(height * scale));
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+      return canvas.toDataURL('image/jpeg', 0.84);
+    }
+
+    async function addFiles(fileList) {
+      const files = Array.from(fileList || [])
+        .filter(file => /^image\//i.test(file.type || ''))
+        .slice(0, MAX_PHOTOS - staged.length);
+
+      for (const file of files) {
+        try {
+          const raw = await readFileAsDataUrl(file);
+          const compressed = await compressImage(raw);
+
+          staged.push({
+            data: compressed,
+            caption: defaultCaption(staged.length),
+            name: file.name || '',
+            addedAt: new Date().toISOString()
+          });
+        } catch (error) {
+          $('photoStatus').textContent = 'Photo failed: ' + (error.message || error);
+        }
+      }
+
+      drawPhotos();
+    }
+
+    function removePhoto(index) {
+      staged.splice(index, 1);
+      drawPhotos();
+    }
+
+    function getRecords() {
+      return JSON.parse(localStorage.getItem('site_inspect_records') || '[]');
+    }
+
+    function setRecords(records) {
+      localStorage.setItem('site_inspect_records', JSON.stringify(records));
+      drawRecords();
+    }
+
+    function saveRecord() {
+      const projectId = $('projectId').value.trim();
+
+      if (!projectId) {
+        alert('Enter Project ID before saving.');
+        return;
+      }
+
+      const records = getRecords();
+
+      records.push({
+        uid: projectId + '_' + Date.now(),
+        projectId,
+        projectName: $('projectName').value.trim(),
+        inspector: $('inspector').value.trim(),
+        date: $('date').value,
+        area: $('area').value.trim(),
+        type: $('type').value,
+        notes: $('notes').value.trim(),
+        photos: staged.slice(),
+        savedAt: new Date().toISOString()
+      });
+
+      setRecords(records);
+
+      staged = [];
+      drawPhotos();
+    }
+
+    function drawRecords() {
+      const records = getRecords();
+
+      if (!records.length) {
+        $('records').innerHTML = '<div class="status">No saved records.</div>';
+        return;
+      }
+
+      $('records').innerHTML = records.slice().reverse().map(record => `
+        <div class="record">
+          <div class="record-title">${escapeHtml(record.uid)}</div>
+          <div class="small">
+            ${escapeHtml(record.date)} · ${escapeHtml(record.type)} · ${escapeHtml(record.area)}
+          </div>
+
+          ${record.notes ? `<p>${escapeHtml(record.notes)}</p>` : ''}
+
+          <div>
+            ${(record.photos || []).map(photo => `
+              <img class="thumb" src="${photo.data}" alt="${escapeHtml(photo.caption || 'Inspection photo')}">
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function clearRecords() {
+      if (confirm('Clear all saved records on this device?')) {
+        setRecords([]);
+      }
+    }
+
+    function exportData() {
+      const records = getRecords();
+
+      if (!records.length) {
+        alert('No records to export.');
+        return;
+      }
+
+      const blob = new Blob([JSON.stringify(records, null, 2)], {
+        type: 'application/json'
+      });
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'site_inspect_export.json';
+      link.click();
+
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      $('date').value = today();
+
+      $('photoInput').addEventListener('change', event => {
+        addFiles(event.target.files);
+        event.target.value = '';
+      });
+
+      drawPhotos();
+      drawRecords();
+    });
+  </script>
+</body>
+</html>
