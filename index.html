@@ -17,31 +17,36 @@
       --text:#143047;
       --muted:#557086;
       --danger:#b73535;
+      --ok:#1d7a4e;
+      --warn:#9a6b00;
     }
 
     * { box-sizing:border-box; }
 
     body {
       margin:0;
-      background:var(--bg);
+      background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);
       color:var(--text);
       font-family:Arial, sans-serif;
       font-size:15px;
+      line-height:1.45;
     }
 
     header {
       position:sticky;
       top:0;
-      background:#fff;
+      background:rgba(255,255,255,.96);
       border-bottom:1px solid var(--border);
       padding:14px;
-      z-index:5;
+      z-index:10;
+      backdrop-filter:blur(8px);
     }
 
     .brand {
       font-weight:700;
       color:var(--accent);
       font-size:20px;
+      letter-spacing:.2px;
     }
 
     .small {
@@ -50,7 +55,7 @@
     }
 
     main {
-      max-width:850px;
+      max-width:920px;
       margin:0 auto;
       padding:12px 12px 92px;
     }
@@ -67,6 +72,10 @@
     .head {
       padding:14px;
       border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
     }
 
     h2 {
@@ -75,15 +84,27 @@
       font-size:18px;
     }
 
+    h3 {
+      margin:12px 0 4px;
+      color:var(--accent);
+      font-size:15px;
+    }
+
     .body {
       padding:14px;
       display:grid;
       gap:12px;
     }
 
-    .grid {
+    .grid2 {
       display:grid;
       grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .grid3 {
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
       gap:10px;
     }
 
@@ -103,10 +124,16 @@
       border-radius:10px;
       background:#fff;
       color:var(--text);
+      outline:none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(13,90,134,.12);
     }
 
     textarea {
-      min-height:90px;
+      min-height:88px;
       resize:vertical;
     }
 
@@ -120,6 +147,7 @@
       min-height:46px;
       width:100%;
       cursor:pointer;
+      text-align:center;
     }
 
     .btn2 {
@@ -134,6 +162,12 @@
       border:1px solid #e9b7b7;
     }
 
+    .ok {
+      background:#eaf7f0;
+      color:var(--ok);
+      border:1px solid #a8d8bd;
+    }
+
     .fileBtn {
       position:relative;
       overflow:hidden;
@@ -145,6 +179,23 @@
       inset:0;
       opacity:0;
       cursor:pointer;
+    }
+
+    .hidden {
+      display:none !important;
+    }
+
+    .status {
+      font-size:12px;
+      color:var(--muted);
+      background:var(--surface2);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:10px;
+    }
+
+    .status strong {
+      color:var(--accent);
     }
 
     .photos {
@@ -182,26 +233,34 @@
       object-fit:cover;
     }
 
-    .status {
-      font-size:12px;
-      color:var(--muted);
-      background:var(--surface2);
-      border:1px solid var(--border);
-      border-radius:10px;
-      padding:10px;
-    }
-
     .record {
       border:1px solid var(--border);
       border-radius:14px;
       background:var(--surface2);
       padding:12px;
       margin-bottom:10px;
+      display:grid;
+      gap:8px;
     }
 
     .record-title {
       font-weight:700;
       color:var(--accent);
+    }
+
+    .chips {
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+
+    .chip {
+      font-size:11px;
+      color:var(--muted);
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:5px 8px;
     }
 
     .thumb {
@@ -219,22 +278,41 @@
       left:0;
       right:0;
       bottom:0;
-      background:#fff;
+      background:rgba(255,255,255,.96);
       border-top:1px solid var(--border);
       padding:10px;
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
-      z-index:10;
+      z-index:20;
+      backdrop-filter:blur(8px);
     }
 
-    @media(max-width:700px) {
-      .grid, .photos {
+    .pill {
+      font-size:11px;
+      color:var(--accent);
+      background:var(--surface2);
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:5px 8px;
+      white-space:nowrap;
+    }
+
+    @media(max-width:720px) {
+      main {
+        padding:10px 10px 92px;
+      }
+
+      .grid2, .grid3, .photos {
         grid-template-columns:1fr;
       }
 
       .preview {
         height:220px;
+      }
+
+      .head {
+        display:block;
       }
     }
   </style>
@@ -249,68 +327,587 @@
   <main>
     <section class="card">
       <div class="head">
-        <h2>Inspection</h2>
-        <div class="small">Save simple local inspection records with staged photos.</div>
+        <div>
+          <h2>Core Inspection Details</h2>
+          <div class="small">Project, inspector, inspection type and general metadata.</div>
+        </div>
+        <span class="pill" id="recordCountPill">0 saved</span>
       </div>
 
       <div class="body">
-        <div class="grid">
+        <div class="grid2">
           <label>
-            Project ID
+            Project ID <span>*</span>
             <input id="projectId" placeholder="PRJ-001">
           </label>
 
           <label>
-            Inspector
-            <input id="inspector" placeholder="Inspector">
+            Project Name
+            <input id="projectName" placeholder="Project / site name">
           </label>
         </div>
 
-        <label>
-          Project Name
-          <input id="projectName" placeholder="Project / site">
-        </label>
-
-        <div class="grid">
+        <div class="grid3">
           <label>
-            Date
+            Client / Requesting Party
+            <input id="client" placeholder="Optional">
+          </label>
+
+          <label>
+            Inspector <span>*</span>
+            <input id="inspector" placeholder="Inspector">
+          </label>
+
+          <label>
+            Inspection Batch ID
+            <input id="batchId" placeholder="Optional batch ID">
+          </label>
+        </div>
+
+        <div class="grid3">
+          <label>
+            Date <span>*</span>
             <input id="date" type="date">
           </label>
 
           <label>
-            Area / Wall ID
-            <input id="area" placeholder="Wall 1 / CH41">
+            Time
+            <input id="time" type="time">
+          </label>
+
+          <label>
+            Primary Inspection Type <span>*</span>
+            <select id="inspectionType" onchange="updateInspectionTypeUI()">
+              <option value="">Select inspection type...</option>
+              <option value="Retaining wall inspection">Retaining wall inspection</option>
+              <option value="Footing inspection">Footing inspection</option>
+              <option value="Temporary stability assessment">Temporary stability assessment</option>
+              <option value="General site inspection">General site inspection</option>
+            </select>
           </label>
         </div>
 
         <label>
-          Inspection Type
-          <select id="type">
-            <option>Retaining wall inspection</option>
-            <option>Footing inspection</option>
-            <option>Temporary stability assessment</option>
-            <option>General site inspection</option>
-          </select>
-        </label>
-
-        <label>
-          Notes
-          <textarea id="notes" placeholder="Record inspection observations"></textarea>
+          General Site / Location Description
+          <input id="locationDescription" placeholder="e.g. rear boundary, Wall 1, CH40 to CH60">
         </label>
       </div>
     </section>
 
     <section class="card">
       <div class="head">
-        <h2>Photos</h2>
-        <div class="small">A selected photo must appear here before it is staged.</div>
+        <div>
+          <h2>GPS Location</h2>
+          <div class="small">Capture device location where available, or enter manually.</div>
+        </div>
       </div>
 
       <div class="body">
-        <label class="btn btn2 fileBtn">
-          Choose photos / camera
-          <input id="photoInput" type="file" accept="image/*" multiple>
+        <button class="btn btn2" type="button" onclick="captureGps()">Capture GPS</button>
+
+        <div class="status" id="gpsStatus">No GPS captured.</div>
+
+        <div class="grid3">
+          <label>
+            Latitude
+            <input id="gpsLat" placeholder="-27.000000">
+          </label>
+
+          <label>
+            Longitude
+            <input id="gpsLon" placeholder="153.000000">
+          </label>
+
+          <label>
+            Accuracy
+            <input id="gpsAccuracy" placeholder="m">
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="card hidden" id="retainingWallSection">
+      <div class="head">
+        <div>
+          <h2>Retaining Wall Inspection</h2>
+          <div class="small">Wall type, geometry, drainage and construction observations.</div>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="grid2">
+          <label>
+            Wall / Area ID
+            <input id="wallId" placeholder="Wall 1, Area A, CH40-CH60">
+          </label>
+
+          <label>
+            Wall Type
+            <select id="wallType" onchange="updateWallTypeUI()">
+              <option value="">Select wall type...</option>
+              <option value="Soil Nail Wall">Soil Nail Wall</option>
+              <option value="Concrete Sleeper">Concrete Sleeper</option>
+              <option value="Gabion">Gabion</option>
+              <option value="Crib Wall">Crib Wall</option>
+              <option value="Boulder Wall">Boulder Wall</option>
+              <option value="Segmental Block Gravity Wall">Segmental Block Gravity Wall</option>
+              <option value="Green-Faced Reinforced Fill Wall">Green-Faced Reinforced Fill Wall</option>
+              <option value="Gabion-Faced Reinforced Fill Wall">Gabion-Faced Reinforced Fill Wall</option>
+              <option value="Masonry-Faced Reinforced Earth Wall">Masonry-Faced Reinforced Earth Wall</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="grid3">
+          <label>
+            Chainage From
+            <input id="chainageFrom" placeholder="CH40">
+          </label>
+
+          <label>
+            Chainage To
+            <input id="chainageTo" placeholder="CH60">
+          </label>
+
+          <label>
+            Current Height
+            <input id="wallHeight" placeholder="e.g. 2.4 m">
+          </label>
+        </div>
+
+        <div class="grid3">
+          <label>
+            Toe Condition
+            <select id="toeCondition">
+              <option value="">Select...</option>
+              <option>Adequate</option>
+              <option>Inadequate</option>
+              <option>N/A</option>
+            </select>
+          </label>
+
+          <label>
+            Crest Condition
+            <select id="crestCondition">
+              <option value="">Select...</option>
+              <option>Adequate</option>
+              <option>Inadequate</option>
+              <option>N/A</option>
+            </select>
+          </label>
+
+          <label>
+            Wall Alignment / Profile
+            <select id="wallProfile">
+              <option value="">Select...</option>
+              <option>Adequate</option>
+              <option>Inadequate</option>
+              <option>N/A</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="grid3">
+          <label>
+            Drainage Gravel
+            <select id="drainageGravel">
+              <option value="">Select...</option>
+              <option>Adequate</option>
+              <option>Inadequate</option>
+              <option>N/A</option>
+            </select>
+          </label>
+
+          <label>
+            Ag Line / Subsoil Drain
+            <select id="agLine">
+              <option value="">Select...</option>
+              <option>Adequate</option>
+              <option>Inadequate</option>
+              <option>N/A</option>
+            </select>
+          </label>
+
+          <label>
+            Drainage Outlets
+            <select id="drainageOutlets">
+              <option value="">Select...</option>
+              <option>Adequate</option>
+              <option>Inadequate</option>
+              <option>N/A</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Retaining Wall Notes
+          <textarea id="retainingWallNotes" placeholder="Record wall observations, defects, hold points, drainage, construction quality, and actions required."></textarea>
         </label>
+      </div>
+    </section>
+
+    <section class="card hidden" id="masonryReSection">
+      <div class="head">
+        <div>
+          <h2>Masonry-Faced Reinforced Earth Wall</h2>
+          <div class="small">Public-safe Form A / Form B style inspection fields.</div>
+        </div>
+      </div>
+
+      <div class="body">
+        <label>
+          Inspection Form
+          <select id="masonryFormType" onchange="updateMasonryFormUI()">
+            <option value="">Select form...</option>
+            <option value="Form A - Foundation Inspection">Form A - Foundation Inspection</option>
+            <option value="Form B - Reinforced Fill Inspection">Form B - Reinforced Fill Inspection</option>
+          </select>
+        </label>
+
+        <div id="formASection" class="hidden">
+          <h3>Form A - Foundation Inspection</h3>
+
+          <div class="grid3">
+            <label>
+              Wall / Segment Label
+              <input id="formA_segment" placeholder="Segment A">
+            </label>
+
+            <label>
+              Chainage / Location
+              <input id="formA_location" placeholder="CH40">
+            </label>
+
+            <label>
+              Reduced Level / RL
+              <input id="formA_rl" placeholder="RL">
+            </label>
+          </div>
+
+          <div class="grid3">
+            <label>
+              Founding Material Type
+              <input id="formA_material" placeholder="e.g. clay, rock, engineered fill">
+            </label>
+
+            <label>
+              Required Bearing
+              <input id="formA_requiredBearing" placeholder="e.g. 150 kPa">
+            </label>
+
+            <label>
+              Bearing Achieved
+              <select id="formA_bearingAchieved">
+                <option value="">Select...</option>
+                <option>Adequate</option>
+                <option>Inadequate</option>
+                <option>N/A</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="grid2">
+            <label>
+              Embedment Depth
+              <input id="formA_embedment" placeholder="e.g. 400 mm">
+            </label>
+
+            <label>
+              Embedment Achieved
+              <select id="formA_embedmentAchieved">
+                <option value="">Select...</option>
+                <option>Adequate</option>
+                <option>Inadequate</option>
+                <option>N/A</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            Foundation Notes
+            <textarea id="formA_notes" placeholder="Record foundation exposure, material, bearing condition, groundwater, proof roll, defects, and actions."></textarea>
+          </label>
+        </div>
+
+        <div id="formBSection" class="hidden">
+          <h3>Form B - Reinforced Fill Inspection</h3>
+
+          <div class="grid3">
+            <label>
+              Current Wall Height
+              <input id="formB_currentHeight" placeholder="e.g. 1.2 m">
+            </label>
+
+            <label>
+              Block / Fascia Type
+              <input id="formB_blockType" placeholder="Block / facing type">
+            </label>
+
+            <label>
+              Geogrid Grade
+              <input id="formB_gridGrade" placeholder="Grid grade">
+            </label>
+          </div>
+
+          <div class="grid3">
+            <label>
+              Geogrid Length
+              <input id="formB_gridLength" placeholder="e.g. 3.0 m">
+            </label>
+
+            <label>
+              Geogrid Connection
+              <select id="formB_gridConnection">
+                <option value="">Select...</option>
+                <option>Adequate</option>
+                <option>Inadequate</option>
+                <option>N/A</option>
+              </select>
+            </label>
+
+            <label>
+              Geogrid Taut / Placement
+              <select id="formB_gridTaut">
+                <option value="">Select...</option>
+                <option>Adequate</option>
+                <option>Inadequate</option>
+                <option>N/A</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="grid3">
+            <label>
+              Select Fill Type
+              <input id="formB_selectFillType" placeholder="Select fill type">
+            </label>
+
+            <label>
+              Select Fill Parameters
+              <select id="formB_selectFillParams">
+                <option value="">Select...</option>
+                <option>Adequate</option>
+                <option>Inadequate</option>
+                <option>N/A</option>
+              </select>
+            </label>
+
+            <label>
+              Compaction
+              <select id="formB_compaction">
+                <option value="">Select...</option>
+                <option>Adequate</option>
+                <option>Inadequate</option>
+                <option>N/A</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="grid3">
+            <label>
+              Total Reinforced Fill Width
+              <input id="formB_fillWidth" placeholder="e.g. 3.0 m">
+            </label>
+
+            <label>
+              Drainage Gravel
+              <select id="formB_drainageGravel">
+                <option value="">Select...</option>
+                <option>Adequate</option>
+                <option>Inadequate</option>
+                <option>N/A</option>
+              </select>
+            </label>
+
+            <label>
+              Drainage Width
+              <select id="formB_drainageWidth">
+                <option value="">Select...</option>
+                <option>Adequate</option>
+                <option>Inadequate</option>
+                <option>N/A</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="grid3">
+            <label>
+              Ag Line
+              <select id="formB_agLine">
+                <option value="">Select...</option>
+                <option>Adequate</option>
+                <option>Inadequate</option>
+                <option>N/A</option>
+              </select>
+            </label>
+
+            <label>
+              Drainage Outlets
+              <select id="formB_outlets">
+                <option value="">Select...</option>
+                <option>Adequate</option>
+                <option>Inadequate</option>
+                <option>N/A</option>
+              </select>
+            </label>
+
+            <label>
+              Wall Alignment / Profile
+              <select id="formB_profile">
+                <option value="">Select...</option>
+                <option>Adequate</option>
+                <option>Inadequate</option>
+                <option>N/A</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            Reinforced Fill Notes
+            <textarea id="formB_notes" placeholder="Record grid, fill, compaction, drainage, block placement, construction quality, and actions."></textarea>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="card hidden" id="footingSection">
+      <div class="head">
+        <div>
+          <h2>Footing Inspection</h2>
+          <div class="small">High-level or piled footing inspection fields.</div>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="grid2">
+          <label>
+            Footing Element ID
+            <input id="footingElementId" placeholder="F01, Pad A, Pile cap 1">
+          </label>
+
+          <label>
+            Footing Subtype
+            <select id="footingSubtype">
+              <option value="">Select...</option>
+              <option>High level</option>
+              <option>Piled</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="grid3">
+          <label>
+            Founding Material
+            <input id="footingMaterial" placeholder="e.g. clay, rock">
+          </label>
+
+          <label>
+            Founding Level
+            <input id="footingLevel" placeholder="RL / depth">
+          </label>
+
+          <label>
+            Bearing Condition
+            <select id="footingBearing">
+              <option value="">Select...</option>
+              <option>Adequate</option>
+              <option>Inadequate</option>
+              <option>N/A</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Footing Notes
+          <textarea id="footingNotes" placeholder="Record footing-specific observations, founding conditions, bearing, groundwater, and actions."></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="card hidden" id="stabilitySection">
+      <div class="head">
+        <div>
+          <h2>Temporary Stability Assessment</h2>
+          <div class="small">Temporary excavation, batter or failure risk inspection fields.</div>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="grid3">
+          <label>
+            Assessment Area ID
+            <input id="stabilityAreaId" placeholder="CUT-01, BATTER-A">
+          </label>
+
+          <label>
+            Excavation Height
+            <input id="excavationHeight" placeholder="e.g. 5.5 m">
+          </label>
+
+          <label>
+            Excavation Angle
+            <input id="excavationAngle" placeholder="e.g. 80 deg">
+          </label>
+        </div>
+
+        <div class="grid3">
+          <label>
+            Failure Type
+            <input id="failureType" placeholder="e.g. wedge, sloughing">
+          </label>
+
+          <label>
+            Likelihood
+            <select id="likelihood">
+              <option value="">Select...</option>
+              <option>Almost Certain</option>
+              <option>Likely</option>
+              <option>Possible</option>
+              <option>Unlikely</option>
+              <option>Rare</option>
+            </select>
+          </label>
+
+          <label>
+            Consequence
+            <select id="consequence">
+              <option value="">Select...</option>
+              <option>Insignificant</option>
+              <option>Minor</option>
+              <option>Moderate</option>
+              <option>Major</option>
+              <option>Catastrophic</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Temporary Stability Notes
+          <textarea id="stabilityNotes" placeholder="Record temporary stability observations, hazards, controls, monitoring requirements, and recommendations."></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="head">
+        <div>
+          <h2>Photos</h2>
+          <div class="small">A selected photo must appear below before it is staged.</div>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="grid2">
+          <label class="btn btn2 fileBtn">
+            Choose photos from library
+            <input id="photoLibraryInput" type="file" accept="image/*" multiple>
+          </label>
+
+          <label class="btn btn2 fileBtn">
+            Take photo with camera
+            <input id="photoCameraInput" type="file" accept="image/*" capture="environment">
+          </label>
+        </div>
 
         <div id="photoGrid" class="photos"></div>
         <div id="photoStatus" class="status">0 photos staged.</div>
@@ -319,29 +916,41 @@
 
     <section class="card">
       <div class="head">
-        <h2>Saved Records</h2>
+        <div>
+          <h2>Saved Records</h2>
+          <div class="small">Records are saved locally in this browser/device.</div>
+        </div>
       </div>
 
       <div class="body">
         <div id="records"></div>
-        <button class="btn danger" onclick="clearRecords()">Clear records</button>
+
+        <div class="grid2">
+          <button class="btn btn2" onclick="exportData()">Export JSON</button>
+          <button class="btn danger" onclick="clearRecords()">Clear Records</button>
+        </div>
       </div>
     </section>
   </main>
 
   <div class="bar">
     <button class="btn" onclick="saveRecord()">Save Inspection</button>
-    <button class="btn btn2" onclick="exportData()">Export JSON</button>
+    <button class="btn btn2" onclick="previewCurrent()">Preview Current</button>
   </div>
 
   <script>
     const MAX_PHOTOS = 3;
-    let staged = [];
+    const STORAGE_KEY = 'site_inspect_records_v2';
+    let stagedPhotos = [];
 
     const $ = id => document.getElementById(id);
 
     function today() {
       return new Date().toISOString().slice(0, 10);
+    }
+
+    function nowTime() {
+      return new Date().toTimeString().slice(0, 5);
     }
 
     function escapeHtml(value) {
@@ -354,17 +963,80 @@
       }[ch]));
     }
 
+    function show(id, shouldShow) {
+      const element = $(id);
+      if (!element) return;
+      element.classList.toggle('hidden', !shouldShow);
+    }
+
+    function updateInspectionTypeUI() {
+      const type = $('inspectionType').value;
+
+      show('retainingWallSection', type === 'Retaining wall inspection');
+      show('footingSection', type === 'Footing inspection');
+      show('stabilitySection', type === 'Temporary stability assessment');
+
+      if (type !== 'Retaining wall inspection') {
+        show('masonryReSection', false);
+      } else {
+        updateWallTypeUI();
+      }
+    }
+
+    function updateWallTypeUI() {
+      const wallType = $('wallType').value;
+      const isMasonry = wallType === 'Masonry-Faced Reinforced Earth Wall';
+      show('masonryReSection', isMasonry);
+      if (!isMasonry) {
+        $('masonryFormType').value = '';
+        updateMasonryFormUI();
+      }
+    }
+
+    function updateMasonryFormUI() {
+      const formType = $('masonryFormType').value;
+      show('formASection', formType === 'Form A - Foundation Inspection');
+      show('formBSection', formType === 'Form B - Reinforced Fill Inspection');
+    }
+
+    function captureGps() {
+      if (!navigator.geolocation) {
+        $('gpsStatus').textContent = 'Geolocation is not supported by this browser.';
+        return;
+      }
+
+      $('gpsStatus').textContent = 'Capturing GPS...';
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const coords = position.coords;
+          $('gpsLat').value = coords.latitude.toFixed(7);
+          $('gpsLon').value = coords.longitude.toFixed(7);
+          $('gpsAccuracy').value = coords.accuracy ? coords.accuracy.toFixed(1) + ' m' : '';
+          $('gpsStatus').textContent = 'GPS captured.';
+        },
+        error => {
+          $('gpsStatus').textContent = 'GPS failed: ' + error.message;
+        },
+        {
+          enableHighAccuracy:true,
+          timeout:12000,
+          maximumAge:0
+        }
+      );
+    }
+
     function defaultCaption(index) {
       const project = $('projectId').value || 'Project';
-      const area = $('area').value || 'Site';
-      return `${project} - ${area} - Photo ${index + 1}`;
+      const wall = $('wallId').value || $('area').value || $('locationDescription').value || 'Site';
+      return `${project} - ${wall} - Photo ${index + 1}`;
     }
 
     function drawPhotos() {
-      if (!staged.length) {
+      if (!stagedPhotos.length) {
         $('photoGrid').innerHTML = '<div class="status">No photos staged yet.</div>';
       } else {
-        $('photoGrid').innerHTML = staged.map((photo, index) => `
+        $('photoGrid').innerHTML = stagedPhotos.map((photo, index) => `
           <div class="slot">
             <div class="preview">
               <img src="${photo.data}" alt="Photo ${index + 1}">
@@ -372,16 +1044,16 @@
 
             <label>
               Caption
-              <input value="${escapeHtml(photo.caption)}" oninput="staged[${index}].caption = this.value">
+              <input value="${escapeHtml(photo.caption)}" oninput="stagedPhotos[${index}].caption = this.value">
             </label>
 
-            <button class="btn danger" onclick="removePhoto(${index})">Remove</button>
+            <button class="btn danger" onclick="removePhoto(${index})">Remove Photo ${index + 1}</button>
           </div>
         `).join('');
       }
 
       $('photoStatus').textContent =
-        `${staged.length}/${MAX_PHOTOS} photo${staged.length === 1 ? '' : 's'} staged.`;
+        `${stagedPhotos.length}/${MAX_PHOTOS} photo${stagedPhotos.length === 1 ? '' : 's'} staged.`;
     }
 
     function readFileAsDataUrl(file) {
@@ -428,19 +1100,25 @@
       return canvas.toDataURL('image/jpeg', 0.84);
     }
 
-    async function addFiles(fileList) {
+    async function addFiles(fileList, source) {
       const files = Array.from(fileList || [])
-        .filter(file => /^image\//i.test(file.type || ''))
-        .slice(0, MAX_PHOTOS - staged.length);
+        .filter(file => /^image\//i.test(file.type || '') || /\.(jpe?g|png|heic|webp)$/i.test(file.name || ''))
+        .slice(0, MAX_PHOTOS - stagedPhotos.length);
+
+      if (!files.length) {
+        $('photoStatus').textContent = 'No image selected, or maximum photo count reached.';
+        return;
+      }
 
       for (const file of files) {
         try {
           const raw = await readFileAsDataUrl(file);
           const compressed = await compressImage(raw);
 
-          staged.push({
+          stagedPhotos.push({
             data: compressed,
-            caption: defaultCaption(staged.length),
+            caption: defaultCaption(stagedPhotos.length),
+            source,
             name: file.name || '',
             addedAt: new Date().toISOString()
           });
@@ -453,46 +1131,177 @@
     }
 
     function removePhoto(index) {
-      staged.splice(index, 1);
+      stagedPhotos.splice(index, 1);
       drawPhotos();
     }
 
+    function fieldValue(id) {
+      const element = $(id);
+      return element ? element.value.trim() : '';
+    }
+
+    function sectionData(ids) {
+      const data = {};
+      ids.forEach(id => data[id] = fieldValue(id));
+      return data;
+    }
+
+    function buildCurrentRecord() {
+      const type = fieldValue('inspectionType');
+      const wallType = fieldValue('wallType');
+      const projectId = fieldValue('projectId');
+
+      const record = {
+        uid: `${projectId || 'PROJECT'}_${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}`,
+        savedAt: new Date().toISOString(),
+        core: sectionData([
+          'projectId',
+          'projectName',
+          'client',
+          'inspector',
+          'batchId',
+          'date',
+          'time',
+          'inspectionType',
+          'locationDescription'
+        ]),
+        gps: sectionData([
+          'gpsLat',
+          'gpsLon',
+          'gpsAccuracy'
+        ]),
+        retainingWall: {},
+        masonryRe: {},
+        footing: {},
+        stability: {},
+        photos: stagedPhotos.slice()
+      };
+
+      if (type === 'Retaining wall inspection') {
+        record.retainingWall = sectionData([
+          'wallId',
+          'wallType',
+          'chainageFrom',
+          'chainageTo',
+          'wallHeight',
+          'toeCondition',
+          'crestCondition',
+          'wallProfile',
+          'drainageGravel',
+          'agLine',
+          'drainageOutlets',
+          'retainingWallNotes'
+        ]);
+
+        if (wallType === 'Masonry-Faced Reinforced Earth Wall') {
+          record.masonryRe.formType = fieldValue('masonryFormType');
+
+          record.masonryRe.formA = sectionData([
+            'formA_segment',
+            'formA_location',
+            'formA_rl',
+            'formA_material',
+            'formA_requiredBearing',
+            'formA_bearingAchieved',
+            'formA_embedment',
+            'formA_embedmentAchieved',
+            'formA_notes'
+          ]);
+
+          record.masonryRe.formB = sectionData([
+            'formB_currentHeight',
+            'formB_blockType',
+            'formB_gridGrade',
+            'formB_gridLength',
+            'formB_gridConnection',
+            'formB_gridTaut',
+            'formB_selectFillType',
+            'formB_selectFillParams',
+            'formB_compaction',
+            'formB_fillWidth',
+            'formB_drainageGravel',
+            'formB_drainageWidth',
+            'formB_agLine',
+            'formB_outlets',
+            'formB_profile',
+            'formB_notes'
+          ]);
+        }
+      }
+
+      if (type === 'Footing inspection') {
+        record.footing = sectionData([
+          'footingElementId',
+          'footingSubtype',
+          'footingMaterial',
+          'footingLevel',
+          'footingBearing',
+          'footingNotes'
+        ]);
+      }
+
+      if (type === 'Temporary stability assessment') {
+        record.stability = sectionData([
+          'stabilityAreaId',
+          'excavationHeight',
+          'excavationAngle',
+          'failureType',
+          'likelihood',
+          'consequence',
+          'stabilityNotes'
+        ]);
+      }
+
+      return record;
+    }
+
+    function validateRecord(record) {
+      if (!record.core.projectId) return 'Project ID is required.';
+      if (!record.core.inspector) return 'Inspector is required.';
+      if (!record.core.date) return 'Date is required.';
+      if (!record.core.inspectionType) return 'Inspection type is required.';
+
+      if (record.core.inspectionType === 'Retaining wall inspection' && !record.retainingWall.wallType) {
+        return 'Wall type is required for retaining wall inspections.';
+      }
+
+      if (
+        record.retainingWall.wallType === 'Masonry-Faced Reinforced Earth Wall' &&
+        !record.masonryRe.formType
+      ) {
+        return 'Form A or Form B is required for masonry-faced reinforced earth wall inspections.';
+      }
+
+      return '';
+    }
+
     function getRecords() {
-      return JSON.parse(localStorage.getItem('site_inspect_records') || '[]');
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     }
 
     function setRecords(records) {
-      localStorage.setItem('site_inspect_records', JSON.stringify(records));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
       drawRecords();
+      updateCount();
     }
 
     function saveRecord() {
-      const projectId = $('projectId').value.trim();
+      const record = buildCurrentRecord();
+      const error = validateRecord(record);
 
-      if (!projectId) {
-        alert('Enter Project ID before saving.');
+      if (error) {
+        alert(error);
         return;
       }
 
       const records = getRecords();
-
-      records.push({
-        uid: projectId + '_' + Date.now(),
-        projectId,
-        projectName: $('projectName').value.trim(),
-        inspector: $('inspector').value.trim(),
-        date: $('date').value,
-        area: $('area').value.trim(),
-        type: $('type').value,
-        notes: $('notes').value.trim(),
-        photos: staged.slice(),
-        savedAt: new Date().toISOString()
-      });
-
+      records.push(record);
       setRecords(records);
 
-      staged = [];
+      stagedPhotos = [];
       drawPhotos();
+
+      alert('Inspection saved on this device.');
     }
 
     function drawRecords() {
@@ -503,22 +1312,41 @@
         return;
       }
 
-      $('records').innerHTML = records.slice().reverse().map(record => `
-        <div class="record">
-          <div class="record-title">${escapeHtml(record.uid)}</div>
-          <div class="small">
-            ${escapeHtml(record.date)} · ${escapeHtml(record.type)} · ${escapeHtml(record.area)}
-          </div>
+      $('records').innerHTML = records.slice().reverse().map(record => {
+        const core = record.core || {};
+        const wall = record.retainingWall || {};
+        const masonry = record.masonryRe || {};
+        const footing = record.footing || {};
+        const stability = record.stability || {};
+        const photoCount = (record.photos || []).length;
 
-          ${record.notes ? `<p>${escapeHtml(record.notes)}</p>` : ''}
+        const summaryBits = [
+          core.inspectionType,
+          wall.wallType,
+          masonry.formType,
+          footing.footingElementId,
+          stability.stabilityAreaId
+        ].filter(Boolean);
 
-          <div>
+        return `
+          <div class="record">
+            <div class="record-title">${escapeHtml(record.uid)}</div>
+
+            <div class="small">
+              ${escapeHtml(core.projectId)} · ${escapeHtml(core.date)} ${escapeHtml(core.time || '')}
+            </div>
+
+            <div class="chips">
+              ${summaryBits.map(bit => `<span class="chip">${escapeHtml(bit)}</span>`).join('')}
+              <span class="chip">${photoCount} photo${photoCount === 1 ? '' : 's'}</span>
+            </div>
+
             ${(record.photos || []).map(photo => `
               <img class="thumb" src="${photo.data}" alt="${escapeHtml(photo.caption || 'Inspection photo')}">
             `).join('')}
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function clearRecords() {
@@ -536,27 +1364,67 @@
       }
 
       const blob = new Blob([JSON.stringify(records, null, 2)], {
-        type: 'application/json'
+        type:'application/json'
       });
+
+      const filename = 'site_inspect_export_' + today() + '.json';
+
+      if (navigator.share && navigator.canShare) {
+        try {
+          const file = new File([blob], filename, { type:'application/json' });
+          if (navigator.canShare({ files:[file] })) {
+            navigator.share({
+              title:'Site Inspect export',
+              files:[file]
+            });
+            return;
+          }
+        } catch (error) {}
+      }
 
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'site_inspect_export.json';
+      link.download = filename;
       link.click();
 
       setTimeout(() => URL.revokeObjectURL(link.href), 1000);
     }
 
+    function previewCurrent() {
+      const record = buildCurrentRecord();
+      alert(JSON.stringify({
+        uid:record.uid,
+        type:record.core.inspectionType,
+        wallType:record.retainingWall.wallType || '',
+        formType:record.masonryRe.formType || '',
+        photoCount:record.photos.length
+      }, null, 2));
+    }
+
+    function updateCount() {
+      const count = getRecords().length;
+      $('recordCountPill').textContent = `${count} saved`;
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       $('date').value = today();
+      $('time').value = nowTime();
 
-      $('photoInput').addEventListener('change', event => {
-        addFiles(event.target.files);
+      $('photoLibraryInput').addEventListener('change', event => {
+        addFiles(event.target.files, 'library');
         event.target.value = '';
       });
 
+      $('photoCameraInput').addEventListener('change', event => {
+        addFiles(event.target.files, 'camera');
+        event.target.value = '';
+      });
+
+      updateInspectionTypeUI();
+      updateMasonryFormUI();
       drawPhotos();
       drawRecords();
+      updateCount();
     });
   </script>
 </body>
